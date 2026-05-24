@@ -1,3 +1,5 @@
+import { DOG_IMAGES } from '../assets/pets/dogImages'
+
 export type PetType = 'cat' | 'dog' | 'dragon'
 
 export type PetEmotion =
@@ -29,40 +31,48 @@ export interface PetRecord {
   date: string
 }
 
-// Только «звериные» эмодзи — никаких человеческих смайликов
+/**
+ * Эмодзи/изображения питомцев по состояниям.
+ * Кот:    стандартные кошачьи Unicode-эмодзи
+ * Пёс:    пользовательские PNG-изображения (base64)
+ * Дракон: тематические рептилийные эмодзи
+ */
 export const PET_EMOJIS: Record<PetType, Record<PetEmotion, string>> = {
   cat: {
-    thriving:  '😸',  // радостный кот
-    happy:     '😺',  // улыбающийся кот
-    full:      '🐱',  // обычный кот
-    content:   '🐱',  // обычный кот
-    hungry:    '🙀',  // испуганный/голодный кот
-    bored:     '😼',  // хитрый/скучающий кот
-    sad:       '😿',  // плачущий кот
-    exhausted: '😾',  // недовольный кот
-    sick:      '🙀',  // испуганный/больной кот
+    thriving:  '😸',
+    happy:     '😺',
+    full:      '🐱',
+    content:   '🐱',
+    hungry:    '🙀',
+    bored:     '😼',
+    sad:       '😿',
+    exhausted: '😾',
+    sick:      '🙀',
   },
+
+  // Для пса используем загруженные PNG-картинки
   dog: {
-    thriving:  '🐶',  // радостный пёс
-    happy:     '🐕',  // довольный пёс
-    full:      '🐕',  // обычный пёс
-    content:   '🐕',  // обычный пёс
-    hungry:    '🐩',  // пёс с поднятой лапой
-    bored:     '🐕‍🦺', // пёс в жилете (задумчивый)
-    sad:       '🐾',  // следы — пёс ушёл грустить
-    exhausted: '🦴',  // кость — очень хочет есть
-    sick:      '🐶',  // пёс с грустными глазами
+    thriving:  DOG_IMAGES.happy,     // широкая улыбка, закрытые глаза — счастлив
+    happy:     DOG_IMAGES.glad,      // открытый рот, радость
+    full:      DOG_IMAGES.neutral,   // нейтральная мордочка — сытый и спокойный
+    content:   DOG_IMAGES.neutral,   // нейтральная мордочка — доволен
+    hungry:    DOG_IMAGES.hungry,    // сморщенная мордочка — голодный
+    bored:     DOG_IMAGES.hungry,    // та же мордочка — недоволен
+    sad:       DOG_IMAGES.sad,       // закрытые глаза, грусть
+    exhausted: DOG_IMAGES.exhausted, // хмурый взгляд — измотан
+    sick:      DOG_IMAGES.exhausted, // хмурый — совсем плохо
   },
+
   dragon: {
-    thriving:  '🐲',  // дракон в полной силе
-    happy:     '🐲',  // довольный дракон
-    full:      '🦎',  // ящерица — спокойный
-    content:   '🦎',  // ящерица — нейтральный
-    hungry:    '🔥',  // огонь — дракон злится от голода
-    bored:     '🦕',  // динозавр — скучает
-    sad:       '🐊',  // крокодил — грустный
-    exhausted: '🦖',  // тираннозавр — устал
-    sick:      '🐍',  // змея — совсем плохо
+    thriving:  '🐲',
+    happy:     '🐉',
+    full:      '🦎',
+    content:   '🦎',
+    hungry:    '🔥',
+    bored:     '🦕',
+    sad:       '🐊',
+    exhausted: '🦖',
+    sick:      '🐍',
   },
 }
 

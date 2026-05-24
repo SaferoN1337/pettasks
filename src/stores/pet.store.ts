@@ -85,12 +85,40 @@ function decay(satietyDelta: number, happinessDelta: number) {
   save()
 }
 
+/**
+ * Пересчитать убывание за время пока приложение было закрыто.
+ * Учитывает ночное замедление (00:00–06:59 → в 4 раза медленнее).
+ */
 function recalculateOfflineDecay() {
-  const elapsed = Date.now() - pet.value.lastUpdateTimestamp
-  if (elapsed < 1000) return
-  const m = isSick.value ? 2 : 1
-  pet.value.satiety   = Math.max(0, pet.value.satiety   - Math.floor(elapsed / (5  * 60 * 1000)) * m)
-  pet.value.happiness = Math.max(0, pet.value.happiness - Math.floor(elapsed / (10 * 60 * 1000)) * m)
+  const now     = Date.now()
+  const elapsed = now - pet.value.lastUpdateTimestamp
+  if (elapsed < 60_000) return
+
+  const SATIETY_PER_MIN   = 1 / 5
+  const HAPPINESS_PER_MIN = 1 / 10
+  const NIGHT_FACTOR      = 4
+  const sickMult = (pet.value.satiety === 0 || pet.value.happiness === 0) ? 2 : 1
+
+  let satietyLost   = 0
+  let happinessLost = 0
+
+  // Шагаем по часам для эффективности
+  const stepMs = 60 * 60_000  // 1 час
+  let cursor   = pet.value.lastUpdateTimestamp
+
+  while (cursor < now) {
+    const stepEnd   = Math.min(cursor + stepMs, now)
+    const actualMin = (stepEnd - cursor) / 60_000
+    const h         = new Date(cursor).getHours()
+    const factor    = (h >= 0 && h < 7) ? 1 / NIGHT_FACTOR : 1
+
+    satietyLost   += SATIETY_PER_MIN   * factor * actualMin
+    happinessLost += HAPPINESS_PER_MIN * factor * actualMin
+    cursor = stepEnd
+  }
+
+  pet.value.satiety   = Math.max(0, pet.value.satiety   - Math.floor(satietyLost)   * sickMult)
+  pet.value.happiness = Math.max(0, pet.value.happiness - Math.floor(happinessLost) * sickMult)
   save()
 }
 

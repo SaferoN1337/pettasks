@@ -11,7 +11,14 @@
           'pet-avatar--petting':  isPetting,
         }"
       >
-        <span class="pet-emoji">{{ currentEmoji }}</span>
+        <!-- Если значение — data URL (PNG), показываем картинку, иначе эмодзи -->
+        <img
+          v-if="currentEmoji.startsWith('data:')"
+          :src="currentEmoji"
+          class="pet-img"
+          alt="питомец"
+        />
+        <span v-else class="pet-emoji">{{ currentEmoji }}</span>
       </div>
 
       <TransitionGroup name="heart" tag="div" class="hearts-container">
@@ -233,6 +240,14 @@ function cancelEdit() { editing.value = false }
   font-size: 3rem;
   line-height: 1;
   user-select: none;
+}
+
+.pet-img {
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+  user-select: none;
+  transition: opacity 0.3s ease;
 }
 
 .hearts-container {
