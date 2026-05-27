@@ -1,4 +1,5 @@
-import { DOG_IMAGES } from '../assets/pets/dogImages'
+import { DOG_IMAGES }    from '../assets/pets/dogImages'
+import { DRAGON_IMAGES } from '../assets/pets/dragonImages'
 
 export type PetType = 'cat' | 'dog' | 'dragon'
 
@@ -31,12 +32,6 @@ export interface PetRecord {
   date: string
 }
 
-/**
- * Эмодзи/изображения питомцев по состояниям.
- * Кот:    стандартные кошачьи Unicode-эмодзи
- * Пёс:    пользовательские PNG-изображения (base64)
- * Дракон: тематические рептилийные эмодзи
- */
 export const PET_EMOJIS: Record<PetType, Record<PetEmotion, string>> = {
   cat: {
     thriving:  '😸',
@@ -50,29 +45,28 @@ export const PET_EMOJIS: Record<PetType, Record<PetEmotion, string>> = {
     sick:      '🙀',
   },
 
-  // Для пса используем загруженные PNG-картинки
   dog: {
-    thriving:  DOG_IMAGES.happy,     // широкая улыбка, закрытые глаза — счастлив
-    happy:     DOG_IMAGES.glad,      // открытый рот, радость
-    full:      DOG_IMAGES.neutral,   // нейтральная мордочка — сытый и спокойный
-    content:   DOG_IMAGES.neutral,   // нейтральная мордочка — доволен
-    hungry:    DOG_IMAGES.hungry,    // сморщенная мордочка — голодный
-    bored:     DOG_IMAGES.hungry,    // та же мордочка — недоволен
-    sad:       DOG_IMAGES.sad,       // закрытые глаза, грусть
-    exhausted: DOG_IMAGES.exhausted, // хмурый взгляд — измотан
-    sick:      DOG_IMAGES.exhausted, // хмурый — совсем плохо
+    thriving:  DOG_IMAGES.happy,
+    happy:     DOG_IMAGES.glad,
+    full:      DOG_IMAGES.neutral,
+    content:   DOG_IMAGES.neutral,
+    hungry:    DOG_IMAGES.hungry,
+    bored:     DOG_IMAGES.hungry,
+    sad:       DOG_IMAGES.sad,
+    exhausted: DOG_IMAGES.exhausted,
+    sick:      DOG_IMAGES.exhausted,
   },
 
   dragon: {
-    thriving:  '🐲',
-    happy:     '🐉',
-    full:      '🦎',
-    content:   '🦎',
-    hungry:    '🔥',
-    bored:     '🦕',
-    sad:       '🐊',
-    exhausted: '🦖',
-    sick:      '🐍',
+    thriving:  DRAGON_IMAGES.happy,     // сердечки в глазах
+    happy:     DRAGON_IMAGES.feelgood,  // знак победы
+    full:      DRAGON_IMAGES.neutral,   // руки в боки, доволен
+    content:   DRAGON_IMAGES.neutral,   // спокойный
+    hungry:    DRAGON_IMAGES.boring,    // зевает от голода
+    bored:     DRAGON_IMAGES.boring,    // зевает от скуки
+    sad:       DRAGON_IMAGES.sad,       // плачет
+    exhausted: DRAGON_IMAGES.angry,     // злой, измотан
+    sick:      DRAGON_IMAGES.angry,     // злой, болен
   },
 }
 
