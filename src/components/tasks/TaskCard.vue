@@ -10,7 +10,7 @@
     }"
     @click="hasDetail ? $emit('open-detail', task) : undefined"
   >
-    <!-- ── Верхняя строка: иконка + название + кнопка Готово ── -->
+    <!-- ── Верхняя строка: иконка + название + кнопка Готово (только мобильный) ── -->
     <div class="task-main">
       <div
         class="task-icon"
@@ -22,36 +22,41 @@
 
       <div class="task-body">
         <div class="task-title">{{ task.title }}</div>
-        <!-- Бонусы — на десктопе здесь, на мобильном переедут вниз через CSS -->
-        <div class="task-bonuses task-bonuses--inline">
+        <!-- Бонусы под названием — только десктоп -->
+        <div class="task-bonuses task-bonuses--desktop">
           <span v-if="task.satietyBonus > 0"   class="bonus bonus--satiety">🍖 +{{ task.satietyBonus }}</span>
           <span v-if="task.happinessBonus > 0" class="bonus bonus--happiness">✨ +{{ task.happinessBonus }}</span>
-          <span v-if="hasSavedDetail"           class="bonus bonus--saved">💾</span>
-          <span v-if="task.isCustom"            class="bonus bonus--custom">👤</span>
+          <span v-if="hasSavedDetail"           class="bonus bonus--saved">💾 уточнение</span>
+          <span v-if="task.isCustom"            class="bonus bonus--custom">👤 своя</span>
         </div>
       </div>
 
-      <!-- Кнопка Готово — всегда видна -->
-      <button
-        class="task-btn"
-        @click.stop="complete"
-        :disabled="justDone"
-      >{{ justDone ? '✓' : 'Готово' }}</button>
+      <!-- Кнопка Готово — только на мобильном (верхняя строка) -->
+      <button class="task-btn task-btn--mobile" @click.stop="complete" :disabled="justDone">
+        {{ justDone ? '✓' : 'Готово' }}
+      </button>
     </div>
 
-    <!-- ── Нижняя строка: действия (редкий клик) ── -->
+    <!-- ── Нижняя строка / правый блок: бонусы (мобильный) + действия + Готово (десктоп) ── -->
     <div class="task-footer" @click.stop>
-      <div class="task-bonuses task-bonuses--footer">
+      <!-- Бонусы — только на мобильном -->
+      <div class="task-bonuses task-bonuses--mobile">
         <span v-if="task.satietyBonus > 0"   class="bonus bonus--satiety">🍖 +{{ task.satietyBonus }}</span>
         <span v-if="task.happinessBonus > 0" class="bonus bonus--happiness">✨ +{{ task.happinessBonus }}</span>
-        <span v-if="hasSavedDetail"           class="bonus bonus--saved">💾 уточнение</span>
-        <span v-if="task.isCustom"            class="bonus bonus--custom">👤 своя</span>
+        <span v-if="hasSavedDetail"           class="bonus bonus--saved">💾</span>
+        <span v-if="task.isCustom"            class="bonus bonus--custom">👤</span>
       </div>
+
       <div class="task-actions">
-        <button v-if="hasDetail"  class="icon-action"                     @click="$emit('open-detail', task)" title="Подробнее">🔍</button>
-        <button                   class="icon-action"                     @click="$emit('edit', task)"        title="Редактировать">✏️</button>
-        <button                   class="icon-action icon-action--danger"  @click="$emit('delete', task)"
+        <button v-if="hasDetail"  class="icon-action"                    @click="$emit('open-detail', task)" title="Подробнее">🔍</button>
+        <button                   class="icon-action"                    @click="$emit('edit', task)"        title="Редактировать">✏️</button>
+        <button                   class="icon-action icon-action--danger" @click="$emit('delete', task)"
           :title="task.isCustom ? 'Удалить' : 'Убрать из списка'">🗑️</button>
+
+        <!-- Кнопка Готово — только на десктопе (правый край) -->
+        <button class="task-btn task-btn--desktop" @click.stop="complete" :disabled="justDone">
+          {{ justDone ? '✓' : 'Готово' }}
+        </button>
       </div>
     </div>
   </div>
@@ -77,13 +82,11 @@ const justDone    = ref(false)
 const isImageIcon = computed<boolean>(() =>
   props.task.icon.startsWith('data:') || props.task.icon.startsWith('http')
 )
-
 const hasDetail = computed<boolean>(() =>
   !!props.task.apiType ||
   props.task.id === 'p3' ||
   !!(props.task.isCustom && props.task.description)
 )
-
 const hasSavedDetail = computed<boolean>(() =>
   hasDetail.value && detailStore.get(props.task.id) !== null
 )
@@ -98,33 +101,23 @@ function complete() {
 </script>
 
 <style scoped>
-/* ── Карточка ─────────────────────────────────────────────── */
+/* ── Базовые стили карточки ───────────────────────────────── */
 .task-card {
   display: flex;
   flex-direction: column;
-  gap: 0;
   background: var(--bg-card);
   border: 1.5px solid var(--border);
   border-radius: 14px;
   transition: border-color 0.25s, transform 0.25s;
   overflow: hidden;
 }
+.task-card--clickable      { cursor: pointer; }
+.task-card--done           { opacity: 0.6; }
+.task-card--productive     { border-left: 4px solid var(--color-satiety); }
+.task-card--fun            { border-left: 4px solid var(--color-happiness); }
+.task-card--custom         { border-left: 4px solid var(--accent) !important; }
 
-.task-card--clickable { cursor: pointer; }
-.task-card--clickable:hover { border-color: var(--accent); }
-.task-card--done       { opacity: 0.6; }
-.task-card--productive { border-left: 4px solid var(--color-satiety); }
-.task-card--fun        { border-left: 4px solid var(--color-happiness); }
-.task-card--custom     { border-left: 4px solid var(--accent) !important; }
-
-/* ── Верхняя строка ───────────────────────────────────────── */
-.task-main {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0.85rem 0;
-}
-
+/* ── Иконка задачи ────────────────────────────────────────── */
 .task-icon {
   font-size: 1.4rem;
   min-width: 2rem; width: 2rem; height: 2rem;
@@ -134,10 +127,8 @@ function complete() {
 .task-icon-img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
 [data-theme="dark"] .task-icon--flag { filter: brightness(1.9) saturate(0.9); }
 
-.task-body {
-  flex: 1;
-  min-width: 0;
-}
+/* ── Тело задачи ──────────────────────────────────────────── */
+.task-body { flex: 1; min-width: 0; }
 
 .task-title {
   font-size: 0.92rem;
@@ -149,9 +140,8 @@ function complete() {
   line-height: 1.3;
 }
 
-/* Бонусы-инлайн — видны на десктопе под названием, скрыты на мобильном */
+/* ── Бонусы ───────────────────────────────────────────────── */
 .task-bonuses { display: flex; gap: 0.35rem; flex-wrap: wrap; }
-.task-bonuses--inline { margin-top: 3px; }
 
 .bonus {
   font-size: 0.72rem;
@@ -165,7 +155,7 @@ function complete() {
 .bonus--saved     { background: rgba(99,102,241,0.15); color: #818cf8; }
 .bonus--custom    { background: rgba(99,102,241,0.1);  color: #a5b4fc; }
 
-/* ── Кнопка Готово ────────────────────────────────────────── */
+/* ── Кнопка Готово (общие стили) ──────────────────────────── */
 .task-btn {
   background: var(--accent);
   color: #fff;
@@ -182,19 +172,12 @@ function complete() {
 .task-btn:hover:not(:disabled) { filter: brightness(1.1); }
 .task-btn:disabled { background: var(--color-satiety); cursor: default; }
 
-/* ── Нижняя строка: бонусы + действия ────────────────────── */
-.task-footer {
+/* ── Кнопки действий ──────────────────────────────────────── */
+.task-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.4rem 0.85rem 0.65rem;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
-
-/* Бонусы в футере — скрыты на десктопе, видны только на мобильном */
-.task-bonuses--footer { display: none; }
-
-.task-actions { display: flex; align-items: center; gap: 0.3rem; margin-left: auto; }
 
 .icon-action {
   background: var(--bg-option);
@@ -206,73 +189,92 @@ function complete() {
   transition: all 0.2s;
   line-height: 1;
 }
-.icon-action:hover         { background: var(--bg-hover); border-color: var(--accent); }
-.icon-action--danger:hover { border-color: #ef4444; }
+.icon-action:hover          { background: var(--bg-hover); border-color: var(--accent); }
+.icon-action--danger:hover  { border-color: #ef4444; }
 
-/* ── ДЕСКТОП (> 600px) ────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   ДЕСКТОП (≥ 600px):
+   горизонтальный однострочный вид
+   [icon][title+bonuses]  →  [🔍][✏️][🗑️][Готово]
+   ══════════════════════════════════════════════════════════════ */
 @media (min-width: 600px) {
-  /* На десктопе возвращаем горизонтальный однострочный вид */
   .task-card {
     flex-direction: row;
     align-items: center;
-    padding: 0.75rem 0.85rem;
+    padding: 0.7rem 0.85rem;
     gap: 0.75rem;
   }
-
-  .task-main {
-    flex: 1;
-    min-width: 0;
-    padding: 0;
-    gap: 0.75rem;
-  }
-
-  /* Нижняя строка на десктопе не нужна как отдельный блок —
-     прячем футер-бонусы, показываем inline-бонусы */
-  .task-footer {
-    padding: 0;
-    flex-shrink: 0;
-  }
-
-  .task-bonuses--inline  { display: flex; }
-  .task-bonuses--footer  { display: none; }
-
   .task-card--clickable:hover { transform: translateX(3px); }
+
+  /* Верхняя строка = иконка + тело (растягивается) */
+  .task-main {
+    display: contents; /* «растворяем» обёртку — дети встают в поток card */
+  }
+
+  /* Нижняя строка = правый блок с действиями */
+  .task-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  .task-body { flex: 1; }
+
+  /* Бонусы под названием — показываем только здесь */
+  .task-bonuses--desktop { display: flex; margin-top: 3px; }
+  .task-bonuses--mobile  { display: none; }
+
+  /* Кнопка мобильная — скрыта */
+  .task-btn--mobile  { display: none; }
+  /* Кнопка десктопная — видна, стоит последней в actions */
+  .task-btn--desktop { display: inline-flex; align-items: center; }
 }
 
-/* ── МОБИЛЬНЫЙ (≤ 599px) ──────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   МОБИЛЬНЫЙ (< 600px):
+   двухстрочный вид
+   Строка 1: [icon][title]                    [Готово]
+   ────────────────────────────────────────────────────
+   Строка 2: [🍖+15][✨+5]         [🔍][✏️][🗑️]
+   ══════════════════════════════════════════════════════════════ */
 @media (max-width: 599px) {
-  .task-card {
-    flex-direction: column;
-  }
+  .task-card { flex-direction: column; }
 
+  /* Верхняя строка */
   .task-main {
-    padding: 0.7rem 0.75rem 0;
+    display: flex;
+    align-items: center;
     gap: 0.6rem;
+    padding: 0.7rem 0.75rem 0;
   }
 
-  /* На мобильном показываем бонусы только в футере, inline скрываем */
-  .task-bonuses--inline  { display: none; }
-  .task-bonuses--footer  { display: flex; flex: 1; }
-
+  /* Нижняя строка */
   .task-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 0.35rem 0.75rem 0.65rem;
     border-top: 1px solid var(--border);
     margin-top: 0.4rem;
+    gap: 0.5rem;
   }
 
-  /* Кнопка Готово — немного меньше на мобильном */
-  .task-btn {
-    padding: 0.38rem 0.7rem;
-    font-size: 0.8rem;
-  }
+  /* Бонусы: под названием скрыты, в футере видны */
+  .task-bonuses--desktop { display: none; }
+  .task-bonuses--mobile  { display: flex; flex: 1; }
 
-  /* Иконки действий чуть крупнее для удобства тапа */
-  .icon-action {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.88rem;
-  }
+  /* Кнопка мобильная — видна в верхней строке */
+  .task-btn--mobile  { display: inline-flex; align-items: center; }
+  /* Кнопка десктопная — скрыта */
+  .task-btn--desktop { display: none; }
 
-  /* Без эффекта сдвига на тач-устройствах */
+  /* Крупнее для удобства тапа */
+  .icon-action { padding: 0.3rem 0.5rem; font-size: 0.88rem; }
+  .task-btn    { padding: 0.38rem 0.7rem; font-size: 0.8rem; }
+
+  /* Без эффекта сдвига на тач */
   .task-card--clickable:hover { transform: none; }
 }
 </style>
